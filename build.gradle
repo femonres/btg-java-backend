@@ -42,7 +42,3 @@ java {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
-
-tasks.named('bootRun') {
-    mainClass.set('com.bgt_pactual.interfaces.Application')
-}

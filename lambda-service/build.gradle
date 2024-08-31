@@ -10,8 +10,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
 
-springBoot {
-    mainClass = 'com.bgt_pactual.interfaces.Application'
+    implementation 'org.springdoc:springdoc-openapi-ui:2.2.0'
 }
