@@ -1,0 +1,6 @@
+rootProject.name = 'bgt-actual'
+
+include 'application'
+include 'domain'
+include 'infrastructure'
+include 'interfaces'
