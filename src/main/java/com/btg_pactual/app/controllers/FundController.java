@@ -27,11 +27,11 @@ public class FundController {
     private final UnsubscribeFromFundUsecase unsubscribeFromFundUsecase;
 
     @GetMapping
-    public List<FundDTO> getFunds() {
+    public List<FundDTO> fetchFunds() {
         return fetchFundsUsecase.execute()
-            .stream()
-            .sorted(Comparator.comparingInt(FundDTO::getId))
-            .collect(Collectors.toList());
+        .stream()
+        .sorted(Comparator.comparingInt(FundDTO::getId))
+        .collect(Collectors.toList());
     }
 
     @PostMapping("/{fundId}/subscribe")

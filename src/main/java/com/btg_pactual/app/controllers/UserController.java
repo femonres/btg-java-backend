@@ -34,7 +34,7 @@ public class UserController {
     private final FetchTransactionHistoryUsecase fetchTransactionHistoryUsecase;
 
     @GetMapping
-    public List<ClientDTO> getUsers() {
+    public List<ClientDTO> fetchUsers() {
         return fetchClientUsecase.execute()
             .stream()
             .sorted(Comparator.comparingInt(ClientDTO::getId))
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/history")
-    public List<TransactionDTO> getTransactionHistory(@PathVariable int userId) {
+    public List<TransactionDTO> fetchTransactionHistory(@PathVariable int userId) {
         return fetchTransactionHistoryUsecase.execute(userId)
             .stream()
             .sorted((o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()))
