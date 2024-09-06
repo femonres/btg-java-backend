@@ -2,6 +2,8 @@ package com.btg_pactual.application.dto;
 
 import java.util.List;
 
+import com.btg_pactual.domain.enums.NotificationType;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +14,7 @@ public class ClientDTO {
     private String name;
     private String email;
     private String phone;
-    private String notification;
+    private NotificationType notification;
     private int balance;
     private List<SubscriptionDTO> subscriptions;
 }

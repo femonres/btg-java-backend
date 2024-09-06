@@ -13,13 +13,13 @@ public class UpdateProfileService {
         this.clientService = clientService;
     }
     
-    public ClientDTO updateProfile(int clientId, String name, String email, String phone, String notification) {
+    public ClientDTO updateProfile(int clientId, String name, String email, String phone, NotificationType notification) {
         Client client = clientService.getClientById(clientId);
 
         client.setName(name);
         client.setEmail(email);
         client.setPhone(phone);
-        client.setNotification(NotificationType.valueOf(notification));
+        client.setNotification(notification);
 
         // Update profile
         clientService.updateProfile(client);

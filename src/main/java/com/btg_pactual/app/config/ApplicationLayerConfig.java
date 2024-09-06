@@ -31,7 +31,7 @@ import com.btg_pactual.domain.strategies.SubscriptionExistenceValidationStrategy
 import com.btg_pactual.domain.strategies.ValidationStrategy;
 
 @Configuration
-public class ApplicationConfig {
+public class ApplicationLayerConfig {
     
     @Bean
     FetchClientService gFetchClientService(ClientService service) {

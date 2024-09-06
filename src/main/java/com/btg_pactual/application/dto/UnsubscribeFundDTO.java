@@ -7,11 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SubscribeToFundDTO {
+public class UnsubscribeFundDTO {
+
     @NotNull
+    @Min(value = 1)
     private int userId;
-    
-    @NotNull
-    @Min(value = 0)
-    private int amount;
 }

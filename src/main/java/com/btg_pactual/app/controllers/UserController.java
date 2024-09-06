@@ -1,19 +1,27 @@
 package com.btg_pactual.app.controllers;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.btg_pactual.application.dto.ClientDTO;
 import com.btg_pactual.application.dto.TransactionDTO;
+import com.btg_pactual.application.dto.UpdateProfileClientDTO;
 import com.btg_pactual.application.usecases.FetchClientUsecase;
 import com.btg_pactual.application.usecases.GetProfileUsecase;
 import com.btg_pactual.application.usecases.UpdateProfileUsecase;
+
+import jakarta.validation.Valid;
+
 import com.btg_pactual.application.usecases.ResetBalanceUsecase;
 import com.btg_pactual.application.usecases.FetchTransactionHistoryUsecase;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -27,26 +35,32 @@ public class UserController {
 
     @GetMapping
     public List<ClientDTO> getUsers() {
-        return fetchClientUsecase.execute();
+        return fetchClientUsecase.execute()
+            .stream()
+            .sorted(Comparator.comparingInt(ClientDTO::getId))
+            .collect(Collectors.toList());
     }
 
-    @GetMapping("/{user_id}")
-    public ClientDTO getUserById(@PathVariable("user_id") int userId) {
+    @GetMapping("/{userId}")
+    public ClientDTO getUserById(@PathVariable int userId) {
         return getProfileUsecase.execute(userId);
     }
 
-    @PutMapping("/{user_id}")
-    public ClientDTO updateUserProfile(@PathVariable("user_id") int userId, @RequestBody ClientDTO dto) {
-        return updateProfileUsecase.execute(userId, dto.getName(), dto.getEmail(), dto.getPhone(), dto.getNotification());
+    @PutMapping("/{userId}")
+    public ClientDTO updateUserProfile(@PathVariable int userId, @Valid @RequestBody UpdateProfileClientDTO dto) {
+        return updateProfileUsecase.execute(userId, dto);
     }
 
-    @PutMapping("/{user_id}/reset")
-    public ClientDTO resetBalance(@PathVariable("user_id") int userId) {
+    @PutMapping("/{userId}/reset")
+    public ClientDTO resetBalance(@PathVariable int userId) {
         return resetBalanceUsecase.execute(userId);
     }
 
-    @GetMapping("/{user_id}/history")
-    public List<TransactionDTO> getTransactionHistory(@PathVariable("user_id") int userId) {
-        return fetchTransactionHistoryUsecase.execute(userId);
+    @GetMapping("/{userId}/history")
+    public List<TransactionDTO> getTransactionHistory(@PathVariable int userId) {
+        return fetchTransactionHistoryUsecase.execute(userId)
+            .stream()
+            .sorted((o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()))
+            .collect(Collectors.toList());
     }
 }

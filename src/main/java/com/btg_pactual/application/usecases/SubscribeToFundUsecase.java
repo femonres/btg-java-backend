@@ -11,7 +11,7 @@ public class SubscribeToFundUsecase {
         this.subscriptionService = subscriptionService;
     }
 
-    public TransactionDTO execute(SubscribeToFundDTO dto) {
-        return subscriptionService.subscribeToFund(dto.getClientId(), dto.getFundId(), dto.getAmount());
+    public TransactionDTO execute(int fundId, SubscribeToFundDTO dto) {
+        return subscriptionService.subscribeToFund(fundId, dto.getUserId(), dto.getAmount());
     }
 }

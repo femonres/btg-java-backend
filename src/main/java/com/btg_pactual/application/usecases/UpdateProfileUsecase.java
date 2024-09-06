@@ -1,6 +1,7 @@
 package com.btg_pactual.application.usecases;
 
 import com.btg_pactual.application.dto.ClientDTO;
+import com.btg_pactual.application.dto.UpdateProfileClientDTO;
 import com.btg_pactual.application.services.UpdateProfileService;
 
 public class UpdateProfileUsecase {
@@ -10,7 +11,7 @@ public class UpdateProfileUsecase {
         this.service = service;
     }
 
-    public ClientDTO execute(int clientId, String name, String email, String phone, String notification) {
-        return service.updateProfile(clientId, name, email, phone, notification);
+    public ClientDTO execute(int clientId, UpdateProfileClientDTO dto) {
+        return service.updateProfile(clientId, dto.getName(), dto.getEmail(), dto.getPhone(), dto.getNotification());
     }
 }

@@ -19,7 +19,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
-public class DomainConfig {
+public class DomainLayerConfig {
     
     @Bean
     ClientRepository clientRepository(DynamoDbClient dbClient) {

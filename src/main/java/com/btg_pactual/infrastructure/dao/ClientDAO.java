@@ -15,11 +15,11 @@ public class ClientDAO {
 
     public static Map<String, AttributeValue> toDynamoItem(Client client) {
         return Map.of(
-            "PK", AttributeValue.builder().n(String.format("CLIENT#%d", client.getId())).build(),
+            "PK", AttributeValue.builder().s(String.format("CLIENT#%d", client.getId())).build(),
             "Name", AttributeValue.builder().s(client.getName()).build(),
             "Email", AttributeValue.builder().s(client.getEmail()).build(),
             "Phone", AttributeValue.builder().s(client.getPhone()).build(),
-            "Balance", AttributeValue.builder().s(String.valueOf(client.getBalance().getValue())).build(),
+            "Balance", AttributeValue.builder().n(String.valueOf(client.getBalance().getValue())).build(),
             "Notification", AttributeValue.builder().s(client.getNotification().name().toLowerCase()).build(),
             "Subscriptions", AttributeValue.builder().l(
                 client.getSubscriptions().stream()
@@ -33,9 +33,9 @@ public class ClientDAO {
     private static Map<String, AttributeValue> toSubscriptionMap(Subscription subscription) {
         return Map.of(
             "ID", AttributeValue.builder().s(subscription.getSubscriptionId().getId()).build(),
-            "FundID", AttributeValue.builder().s(subscription.getSubscriptionId().getId()).build(),
-            "FundName", AttributeValue.builder().s(subscription.getSubscriptionId().getId()).build(),
-            "Amount", AttributeValue.builder().s(subscription.getSubscriptionId().getId()).build()
+            "FundID", AttributeValue.builder().s(String.valueOf(subscription.getFundId())).build(),
+            "FundName", AttributeValue.builder().s(subscription.getFundName()).build(),
+            "Amount", AttributeValue.builder().s(String.valueOf(subscription.getAmount().getValue())).build()
         );
     }
 
@@ -47,9 +47,11 @@ public class ClientDAO {
         client.setPhone(item.get("Phone").s());
         client.setBalance(new Amount(Integer.parseInt(item.get("Balance").n())));
         client.setNotification(NotificationType.valueOf(item.get("Notification").s().toUpperCase()));
-        client.setSubscriptions(item.get("Subscriptions").l().stream()
-            .map(attrValue -> fromSubscriptionMap(attrValue.m()))
-            .collect(Collectors.toList()));
+        if (item.get("Subscriptions") != null) {
+            client.setSubscriptions(item.get("Subscriptions").l().stream()
+                .map(attrValue -> fromSubscriptionMap(attrValue.m()))
+                .collect(Collectors.toList()));
+        }
         
         return client;
     }

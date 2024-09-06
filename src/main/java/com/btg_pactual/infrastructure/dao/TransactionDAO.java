@@ -16,19 +16,19 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 public class TransactionDAO {
     public static Map<String, AttributeValue> toDynamoItem(Transaction transaction) {
         return Map.of(
-            "PK", AttributeValue.builder().n(String.valueOf(transaction.getTransactionId().getId())).build(),
-            "ClientID", AttributeValue.builder().n(String.valueOf(transaction.getClientId())).build(),
-            "FundID", AttributeValue.builder().n(String.valueOf(transaction.getFund().getId())).build(),
-            "FundName", AttributeValue.builder().n(transaction.getFund().getName()).build(),
+            "PK", AttributeValue.builder().s(String.valueOf(transaction.getTransactionId().getId())).build(),
+            "ClientID", AttributeValue.builder().s(String.valueOf(transaction.getClientId())).build(),
+            "FundID", AttributeValue.builder().s(String.valueOf(transaction.getFund().getId())).build(),
+            "FundName", AttributeValue.builder().s(transaction.getFund().getName()).build(),
             "Amount", AttributeValue.builder().n(String.valueOf(transaction.getAmount().getValue())).build(),
-            "TransactionType", AttributeValue.builder().n(transaction.getTransactionType().name().toLowerCase()).build(),
-            "Timestamp", AttributeValue.builder().n(transaction.getTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build()
+            "TransactionType", AttributeValue.builder().s(transaction.getTransactionType().name().toLowerCase()).build(),
+            "Timestamp", AttributeValue.builder().s(transaction.getTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build()
         );
     }
 
     public static Transaction fromDynamoItem(Map<String, AttributeValue> item) {
         Fund fund = new Fund(
-            Integer.parseInt(item.get("FundID").n()),
+            Integer.parseInt(item.get("FundID").s()),
             item.get("FundName").s(),
             new Amount(0),
             new FundCategory("FPV")

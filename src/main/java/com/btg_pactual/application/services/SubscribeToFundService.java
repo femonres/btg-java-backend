@@ -14,6 +14,9 @@ import com.btg_pactual.domain.services.TransactionService;
 import com.btg_pactual.domain.strategies.ValidationStrategy;
 import com.btg_pactual.domain.value_objects.Amount;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SubscribeToFundService {
     private final ClientService clientService;
     private final FundService fundService;
@@ -29,13 +32,17 @@ public class SubscribeToFundService {
         this.validationStrategies = validationStrategies;
     }
 
-    public TransactionDTO subscribeToFund(int clientId, int fundId, int amount) {
+    public TransactionDTO subscribeToFund(int fundId, int clientId, int amount) {
         Client client = clientService.getClientById(clientId);
         Fund fund = fundService.getFundById(fundId);
 
         client.setValidations(validationStrategies);
         Transaction transaction = client.subscribeToFund(fund, new Amount(amount));
         transactionService.saveTransaction(transaction);
+
+        log.info("Client: {}", client);
+        log.info("Subscriptions: {}", client.getSubscriptions().size());
+        clientService.saveClient(client);
 
         // Send notification
         notificationService.sendSubscriptionNotification(client, fund);

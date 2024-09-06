@@ -15,7 +15,7 @@ public class ClientMapper {
         dto.setName(client.getName());
         dto.setEmail(client.getEmail());
         dto.setPhone(client.getPhone());
-        dto.setNotification(client.getNotification().toString());
+        dto.setNotification(client.getNotification());
         dto.setBalance(client.getBalance().getValue());
 
         List<SubscriptionDTO> subscriptionDTOs = client.getSubscriptions().stream()
