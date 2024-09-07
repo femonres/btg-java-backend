@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: 'BTG Pactual backend Java con Spring Boot'
+
+Parameters:
+  CodeS3Bucket:
+    Type: String
+    Description: "S3 bucket where the Lambda deployment package is stored"
+  CodeS3Key:
+    Type: String
+    Description: "S3 key for the Lambda deployment package"
+
+Resources:
+  # Role de IAM para Lambda
+  JavaLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaDynamoDBAndSNSPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/ClientTable"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/FundTable"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/TransactionTable"
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource:
+                  - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:EmailNotifications
+                  - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:SmsNotifications
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+
+  JavaLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: JavaLambdaFunction
+      Handler: com.btg_pactual.app.Application
+      Role: !GetAtt JavaLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref CodeS3Bucket
+        S3Key: !Ref CodeS3Key
+      Runtime: java17
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: prod
+          JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1
+          ALLOWED_ORIGINS: "http://*.amazonaws.com,https://*.amazonaws.com"
+          EMAIL_TOPIC_ARN: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:EmailNotifications
+          SMS_TOPIC_ARN: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:SmsNotifications
+
+  # Permiso para API Gateway invocar Lambda
+  JavaLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref JavaLambdaFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${JavaApi}/*/*/*"
+
+  JavaApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: JavaApiGateway
+      Description: API Gateway for managing client subscriptions to funds
+
+  # Recursos del API
+  JavaLambdaApiGateway:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt JavaApi.RootResourceId
+      PathPart: '{proxy+}'
+      RestApiId: !Ref JavaApi
+
+  JavaLambdaMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      ResourceId: !Ref JavaLambdaApiGateway
+      RestApiId: !Ref JavaApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations
+      MethodResponses:
+        - StatusCode: "200"
+
+  JavaLambdaApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: JavaLambdaMethod
+    Properties:
+      RestApiId: !Ref JavaApi
+
+  JavaLambdaApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref JavaApi
+      DeploymentId: !Ref JavaLambdaApiGatewayDeployment
+      StageName: prod
+
+Outputs:
+  ApiUrl:
+    Description: "URL for API Gateway"
+    Value: !Sub "https://${JavaApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"

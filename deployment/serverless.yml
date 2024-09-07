@@ -1,0 +1,74 @@
+service: btg-java-backend
+
+provider:
+  name: aws
+  runtime: java17
+  region: us-west-2
+  memorySize: 1024
+  timeout: 30
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1
+    AWS_REGION: ${env:AWS_REGION}
+    ALLOWED_ORIGINS: ${env:ALLOWED_ORIGINS}
+    EMAIL_SNS_TOPIC_ARN: arn:aws:sns:us-west-2:627643173759:EmailNotifications
+    SMS_SNS_TOPIC_ARN: arn:aws:sns:us-west-2:627643173759:SmsNotifications
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - sns:Publish
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: "*"
+
+package:
+  artifact: build/libs/btg_pactual-1.0.1-plain.jar
+
+functions:
+  userHandler:
+    handler: com.btg_pactual.app.Application
+    events:
+      - http:
+          path: /api/v1/users
+          method: get
+      - http:
+          path: /api/v1/users/{userId}
+          method: get
+      - http:
+          path: /api/v1/users/{userId}
+          method: put
+      - http:
+          path: /api/v1/users/{userId}/reset
+          method: put
+      - http:
+          path: /api/v1/users/{userId}/history
+          method: get
+  fundHandler:
+    handler: com.btg_pactual.app.Application
+    events:
+      - http:
+          path: /api/v1/funds
+          method: get
+      - http:
+          path: /api/v1/funds/{fundId}/subscribe
+          method: post
+      - http:
+          path: /api/v1/funds/{fundId}/unsubscribe
+          method: post
+
+plugins:
+  - serverless-java-requirements-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
