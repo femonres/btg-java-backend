@@ -30,6 +30,7 @@ public class UnsubscribeFromFundService {
 
         Transaction transaction = client.cancelFundSubscription(fund);
         transactionService.saveTransaction(transaction);
+        clientService.saveClient(client);
 
         // Send notification
         notificationService.sendUnsubscriptionNotification(client, fund);

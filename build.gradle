@@ -2,17 +2,14 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group = 'com.btg_pactual'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.1'
 
 sourceCompatibility = '17'
 targetCompatibility = '17'
-
-ext {
-  set('springCloudVersion', "2023.0.3")
-}
 
 repositories {
     mavenCentral()
@@ -47,7 +44,7 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom 'software.amazon.awssdk:bom:2.20.22'
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.3"
     }
 }
 
@@ -60,22 +57,17 @@ tasks.withType(Test) {
 }
 
 bootJar {
-    enabled = false
-}
-
-jar {
-    enabled = true
-    archiveBaseName.set('bgt_pactual')
+    launchScript()
+    archiveFileName = "application.jar"
     manifest {
-        attributes(
-            'Main-Class': 'com.btg_pactual.app.LambdaHandler'
-        )
+        attributes 'Main-Class': 'com.btg_pactual.app.Application'
     }
 }
 
-task buildLambdaZip(type: Zip) {
-    from compileJava
-    from processResources
-    archiveFileName.set('btg_backend.zip')
+shadowJar {
+    archiveFileName = 'application-all.jar'
+    mergeServiceFiles()
+    manifest {
+        attributes 'Main-Class': 'com.btg_pactual.app.Application'
+    }
 }
-build.dependsOn buildLambdaZip

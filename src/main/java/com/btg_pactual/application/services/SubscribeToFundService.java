@@ -39,14 +39,10 @@ public class SubscribeToFundService {
         client.setValidations(validationStrategies);
         Transaction transaction = client.subscribeToFund(fund, new Amount(amount));
         transactionService.saveTransaction(transaction);
-
-        log.info("Client: {}", client);
-        log.info("Subscriptions: {}", client.getSubscriptions().size());
         clientService.saveClient(client);
 
         // Send notification
         notificationService.sendSubscriptionNotification(client, fund);
-
         return TransactionMapper.toDTO(transaction);
     }
 }

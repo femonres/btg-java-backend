@@ -61,8 +61,8 @@ public class SNSNotificationServiceImpl implements NotificationService {
             .messageAttributes(attributes)
             .subject(String.format("Notification for %s", username))
             .build();
-        PublishResponse publishResponse = snsClient.publish(publishRequest);
-        log.info("MessageId: " + publishResponse.messageId());
+        //PublishResponse publishResponse = snsClient.publish(publishRequest);
+        //log.info("MessageId: " + publishResponse.messageId());
     }
 
     private void sendSMS(String phone, String message) {
@@ -71,7 +71,7 @@ public class SNSNotificationServiceImpl implements NotificationService {
             .message(message)
             .phoneNumber(phone)
             .build();
-        PublishResponse publishResponse = snsClient.publish(publishRequest);
-        log.info("MessageId: " + publishResponse.messageId());
+        //PublishResponse publishResponse = snsClient.publish(publishRequest);
+        //log.info("MessageId: " + publishResponse.messageId());
     }
 }

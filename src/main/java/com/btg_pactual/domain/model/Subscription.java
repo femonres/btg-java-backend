@@ -1,5 +1,7 @@
 package com.btg_pactual.domain.model;
 
+import java.time.LocalDateTime;
+
 import com.btg_pactual.domain.value_objects.Amount;
 import com.btg_pactual.domain.value_objects.Identifier;
 
@@ -13,6 +15,7 @@ public class Subscription {
     private int fundId;
     private String fundName;
     private Amount amount;
+    private LocalDateTime timestamp = LocalDateTime.now();
 
     public Subscription(int fundId, String fundName, Amount amount) {
         this.fundId = fundId;

@@ -10,6 +10,8 @@ import com.btg_pactual.domain.value_objects.Amount;
 import com.btg_pactual.domain.value_objects.Identifier;
 
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 public class ClientDAO {
 
@@ -35,7 +37,8 @@ public class ClientDAO {
             "ID", AttributeValue.builder().s(subscription.getSubscriptionId().getId()).build(),
             "FundID", AttributeValue.builder().s(String.valueOf(subscription.getFundId())).build(),
             "FundName", AttributeValue.builder().s(subscription.getFundName()).build(),
-            "Amount", AttributeValue.builder().s(String.valueOf(subscription.getAmount().getValue())).build()
+            "Amount", AttributeValue.builder().s(String.valueOf(subscription.getAmount().getValue())).build(),
+            "Timestamp", AttributeValue.builder().s(subscription.getTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build()
         );
     }
 
@@ -62,6 +65,7 @@ public class ClientDAO {
         subscription.setFundId(Integer.parseInt(map.get("FundID").s()));
         subscription.setFundName(map.get("FundName").s());
         subscription.setAmount(new Amount(Integer.parseInt(map.get("Amount").s())));
+        subscription.setTimestamp(LocalDateTime.parse(map.get("Timestamp").s(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         return subscription;
     }
 }
