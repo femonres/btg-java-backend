@@ -1,6 +1,7 @@
 package com.btg_pactual.application.dto;
 
 import com.btg_pactual.domain.enums.NotificationType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -10,20 +11,22 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateProfileClientDTO {
+@JsonIgnoreProperties
+public class UpdateProfileClientRequest {
+
+    @Schema(hidden = true)
+    private int userId;
+    
     @NotBlank
-    @Schema(required = true)
     private String name;
 
     @Email
     @NotBlank
-    @Schema(required = true)
     private String email;
     
     @NotBlank
-    @Schema(required = true)
     private String phone;
 
-    @Schema(required = true, allowableValues = {"EMAIL", "PHONE"})
+    @Schema(allowableValues = {"EMAIL", "PHONE"})
     private NotificationType notification;
 }

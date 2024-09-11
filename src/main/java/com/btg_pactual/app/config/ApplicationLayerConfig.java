@@ -1,6 +1,7 @@
 package com.btg_pactual.app.config;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,34 +33,57 @@ import com.btg_pactual.domain.strategies.ValidationStrategy;
 
 @Configuration
 public class ApplicationLayerConfig {
+
+    @Bean
+    Map<String, Object> useCasesMap(
+        FetchClientUsecase fetchClientUsecase,
+        FetchTransactionHistoryUsecase fetchTransactionHistoryUsecase,
+        GetProfileUsecase getProfileUsecase,
+        UpdateProfileUsecase updateProfileUsecase,
+        ResetBalanceUsecase resetBalanceUsecase,
+        FetchFundsUsecase fetchFundsUsecase,
+        SubscribeToFundUsecase subscribeToFundUsecase,
+        UnsubscribeFromFundUsecase unsubscribeFromFundUsecase
+    ) {
+        return Map.of(
+                "fetchClient", fetchClientUsecase,
+                "fetchTransactionHistory", fetchTransactionHistoryUsecase,
+                "getProfile", getProfileUsecase,
+                "updateProfile", updateProfileUsecase,
+                "resetBalance", resetBalanceUsecase,
+                "fetchFunds", fetchFundsUsecase,
+                "subscribeToFund", subscribeToFundUsecase,
+                "unsubscribeFromFund", unsubscribeFromFundUsecase
+        );
+    }
     
     @Bean
-    FetchClientService gFetchClientService(ClientService service) {
+    FetchClientUsecase gFetchClientUsecase(ClientService service) {
         return new FetchClientService(service);
     }
 
     @Bean
-    FetchFundsService gFetchFundsService(FundService service) {
+    FetchFundsUsecase gFetchFundsService(FundService service) {
         return new FetchFundsService(service);
     }
 
     @Bean
-    FetchTransactionHistoryService gFetchTransactionHistoryService(TransactionService service) {
+    FetchTransactionHistoryUsecase gFetchTransactionHistoryService(TransactionService service) {
         return new FetchTransactionHistoryService(service);
     }
 
     @Bean
-    GetProfileService gProfileService(ClientService service) {
+    GetProfileUsecase gProfileService(ClientService service) {
         return new GetProfileService(service);
     }
 
     @Bean
-    ResetBalanceService gResetBalanceService(ClientService service) {
+    ResetBalanceUsecase gResetBalanceService(ClientService service) {
         return new ResetBalanceService(service);
     }
 
     @Bean
-    SubscribeToFundService gSubscribeToFundService(ClientService clientService, FundService fundService, TransactionService transactionService, NotificationService notificationService) {
+    SubscribeToFundUsecase gSubscribeToFundService(ClientService clientService, FundService fundService, TransactionService transactionService, NotificationService notificationService) {
         List<ValidationStrategy> strategies = List.of(
             new BalanceValidationStrategy(),
             new FundAmountValidationStrategy(),
@@ -69,56 +93,13 @@ public class ApplicationLayerConfig {
     }
 
     @Bean
-    UnsubscribeFromFundService gUnsubscribeFromFundService(ClientService clientService, FundService fundService, TransactionService transactionService, NotificationService notificationService) {
+    UnsubscribeFromFundUsecase gUnsubscribeFromFundService(ClientService clientService, FundService fundService, TransactionService transactionService, NotificationService notificationService) {
         return new UnsubscribeFromFundService(clientService, fundService, transactionService, notificationService);
     }
 
     @Bean
-    UpdateProfileService gUpdateProfileService(ClientService service) {
+    UpdateProfileUsecase gUpdateProfileService(ClientService service) {
         return new UpdateProfileService(service);
     }
 
-    // Usecases
-
-    @Bean
-    FetchClientUsecase gFetchClientUsecase(FetchClientService service) {
-        return new FetchClientUsecase(service);
-    }
-
-    @Bean
-    FetchFundsUsecase gFetchFundsUsecase(FetchFundsService service) {
-        return new FetchFundsUsecase(service);
-    }
-
-    @Bean
-    FetchTransactionHistoryUsecase gFetchTransactionHistoryUsecase(FetchTransactionHistoryService service) {
-        return new FetchTransactionHistoryUsecase(service);
-    }
-
-    @Bean
-    GetProfileUsecase gGetProfileUsecase(GetProfileService service) {
-        return new GetProfileUsecase(service);
-    }
-
-    @Bean
-    ResetBalanceUsecase gResetBalanceUsecase(ResetBalanceService service) {
-        return new ResetBalanceUsecase(service);
-    }
-
-    @Bean
-    SubscribeToFundUsecase gSubscribeToFundUsecase(SubscribeToFundService service) {
-        return new SubscribeToFundUsecase(service);
-    }
-
-    @Bean
-    UnsubscribeFromFundUsecase gUnsubscribeFromFundUsecase(UnsubscribeFromFundService service) {
-        return new UnsubscribeFromFundUsecase(service);
-    }
-
-    @Bean
-    UpdateProfileUsecase gUpdateProfileUsecase(UpdateProfileService service) {
-        return new UpdateProfileUsecase(service);
-    }
-
-    // Services
 }
