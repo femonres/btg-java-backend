@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.translate.model.InvalidRequestException;
 
 @Slf4j
 @ControllerAdvice
@@ -45,18 +44,21 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+    
     @ExceptionHandler(InsufficientBalanceException.class)
     @ResponseBody
     public ResponseEntity<ErrorResponse> handleInvalidRequestException(InsufficientBalanceException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(SubscriptionAlreadyException.class)
     @ResponseBody
     public ResponseEntity<ErrorResponse> handleInvalidRequestException(SubscriptionAlreadyException ex) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(SubscriptionNotFoundException.class)
     @ResponseBody
     public ResponseEntity<ErrorResponse> handleInvalidRequestException(SubscriptionNotFoundException ex) {
@@ -67,19 +69,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map   <String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(InvalidRequestException.class)
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleInvalidRequestException(InvalidRequestException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

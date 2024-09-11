@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.0'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.0'
 }
 
 group = 'com.btg_pactual'
@@ -18,19 +18,22 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.cloud:spring-cloud-function-web'
-    implementation 'org.springframework.cloud:spring-cloud-function-adapter-aws'
-    implementation 'org.springframework.cloud:spring-cloud-starter-function-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-json'
+    
+    // Spring Cloud Function y AWS
+    implementation 'org.springframework.cloud:spring-cloud-function-web'
+    implementation 'org.springframework.cloud:spring-cloud-function-adapter-aws'
+    implementation 'org.springframework.cloud:spring-cloud-starter-function-web'
 
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
 
+    // AWS SDK para DynamoDB, SNS, SES
     implementation 'software.amazon.awssdk:dynamodb'
-    implementation 'software.amazon.awssdk:translate'
     implementation 'software.amazon.awssdk:sns'
+    implementation 'software.amazon.awssdk:ses'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -56,14 +59,7 @@ tasks.withType(Test) {
     useJUnitPlatform()
 }
 
-bootJar {
-    launchScript()
-    archiveFileName = "application.jar"
-    manifest {
-        attributes 'Main-Class': 'com.btg_pactual.app.Application'
-    }
-}
-
+// Configuración del plugin Shadow para crear un JAR "fat"
 shadowJar {
     archiveFileName = 'application-all.jar'
     mergeServiceFiles()
