@@ -1,5 +1,10 @@
 {"properties": [
   {
+    "name": "spring.web.cors.allowed-origins",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.web.cors.allowed-origins'"
+  },
+  {
     "name": "aws.profile",
     "type": "java.lang.String",
     "description": "A description for 'aws.profile'"
@@ -25,8 +30,13 @@
     "description": "A description for 'aws.sns.sms-topic-arn'"
   },
   {
-    "name": "spring.web.cors.allowed-origins",
+    "name": "aws.accessKeyId",
     "type": "java.lang.String",
-    "description": "A description for 'spring.web.cors.allowed-origins'"
+    "description": "A description for 'aws.accessKeyId'"
+  },
+  {
+    "name": "aws.secretAccessKey",
+    "type": "java.lang.String",
+    "description": "A description for 'aws.secretAccessKey'"
   }
 ]}

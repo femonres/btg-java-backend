@@ -10,6 +10,7 @@ import com.btg_pactual.application.usecases.GetProfileUsecase;
 import com.btg_pactual.application.usecases.UpdateProfileUsecase;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import com.btg_pactual.application.usecases.ResetBalanceUsecase;
@@ -22,8 +23,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@RequestMapping("/users")
+@Tag(name = "Users", description = "Endpoints para gestionar usuarios")
 public class UserController {
 
     private final FetchClientUsecase fetchClientUsecase;
@@ -60,7 +62,7 @@ public class UserController {
         return resetBalanceUsecase.execute(userId);
     }
 
-    @GetMapping("/{userId}/history")
+    @GetMapping("/{userId}/transacctions")
     @Operation(summary = "Obtener el historial de transacciones de un usuario por su ID")
     public List<TransactionDTO> fetchTransactionHistory(@PathVariable int userId) {
         return fetchTransactionHistoryUsecase.execute(userId)

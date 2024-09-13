@@ -1,8 +1,6 @@
 package com.btg_pactual.app.config;
 
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,29 +31,6 @@ import com.btg_pactual.domain.strategies.ValidationStrategy;
 
 @Configuration
 public class ApplicationLayerConfig {
-
-    @Bean
-    Map<String, Object> useCasesMap(
-        FetchClientUsecase fetchClientUsecase,
-        FetchTransactionHistoryUsecase fetchTransactionHistoryUsecase,
-        GetProfileUsecase getProfileUsecase,
-        UpdateProfileUsecase updateProfileUsecase,
-        ResetBalanceUsecase resetBalanceUsecase,
-        FetchFundsUsecase fetchFundsUsecase,
-        SubscribeToFundUsecase subscribeToFundUsecase,
-        UnsubscribeFromFundUsecase unsubscribeFromFundUsecase
-    ) {
-        return Map.of(
-                "fetchClient", fetchClientUsecase,
-                "fetchTransactionHistory", fetchTransactionHistoryUsecase,
-                "getProfile", getProfileUsecase,
-                "updateProfile", updateProfileUsecase,
-                "resetBalance", resetBalanceUsecase,
-                "fetchFunds", fetchFundsUsecase,
-                "subscribeToFund", subscribeToFundUsecase,
-                "unsubscribeFromFund", unsubscribeFromFundUsecase
-        );
-    }
     
     @Bean
     FetchClientUsecase gFetchClientUsecase(ClientService service) {
@@ -101,5 +76,4 @@ public class ApplicationLayerConfig {
     UpdateProfileUsecase gUpdateProfileService(ClientService service) {
         return new UpdateProfileService(service);
     }
-
 }

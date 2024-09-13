@@ -11,6 +11,7 @@ import com.btg_pactual.application.usecases.SubscribeToFundUsecase;
 import com.btg_pactual.application.usecases.UnsubscribeFromFundUsecase;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -19,8 +20,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/funds")
 @RequiredArgsConstructor
+@RequestMapping("/funds")
+@Tag(name = "Funds", description = "Endpoints para gestionar fondos")
 public class FundController {
 
     private final FetchFundsUsecase fetchFundsUsecase;

@@ -1,0 +1,15 @@
+spring:
+  web:
+    cors:
+      allowed-origins: ${ALLOWED_ORIGINS}
+  main:
+    banner-mode: off
+
+aws:
+  profile: ${AWS_PROFILE:default}
+  region: ${AWS_REGION:us-west-2}
+  accessKeyId: ${AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+  sns:
+    email-topic-arn: ${EMAIL_SNS_TOPIC_ARN}
+    sms-topic-arn: ${SMS_SNS_TOPIC_ARN}

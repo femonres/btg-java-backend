@@ -1,0 +1,469 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "BTG Java API",
+    "description": "Api para que los clientes puedan gestionar su afiliación/desvinculación de los fondos de inversión",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Default Server URL"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Funds",
+      "description": "Endpoints para gestionar fondos"
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints para gestionar usuarios"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Listar todos los usuarios",
+        "operationId": "fetchUsers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Obtener un usuario por su ID",
+        "operationId": "getUserById",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Actualizar un usuario por su ID",
+        "operationId": "updateUserProfile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileClientRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/reset": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Resetear el balance de un usuario por su ID",
+        "operationId": "resetBalance",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/transacctions": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Obtener el historial de transacciones de un usuario por su ID",
+        "operationId": "fetchTransactionHistory",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransactionDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/funds": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Listar todos los fondos",
+        "operationId": "fetchFunds",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FundDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/funds/{fundId}/subscribe": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Suscribirse a un fondo por su ID",
+        "operationId": "subscribeToFund",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeToFundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/funds/{fundId}/unsubscribe": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Darse de baja de un fondo por su ID",
+        "operationId": "unsubscribeFromFund",
+        "parameters": [
+          {
+            "name": "fundId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnsubscribeFundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateProfileClientRequest": {
+        "required": [
+          "email",
+          "name",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "notification": {
+            "type": "string",
+            "enum": [
+              "EMAIL",
+              "PHONE",
+              "EMAIL",
+              "PHONE"
+            ]
+          }
+        }
+      },
+      "ClientDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "notification": {
+            "type": "string",
+            "enum": [
+              "EMAIL",
+              "PHONE"
+            ]
+          },
+          "balance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionDTO"
+            }
+          }
+        }
+      },
+      "SubscriptionDTO": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": {
+            "type": "string"
+          },
+          "fundId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fundName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp in ISO 8601 format",
+            "example": "2024-09-05T18:09:56.289Z"
+          }
+        }
+      },
+      "UnsubscribeFundRequest": {
+        "required": [
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TransactionDTO": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string"
+          },
+          "fundId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fundName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp in ISO 8601 format",
+            "example": "2024-09-05T18:09:56.289Z"
+          },
+          "transactionType": {
+            "type": "string",
+            "enum": [
+              "OPENING",
+              "CANCELLATION"
+            ]
+          }
+        }
+      },
+      "SubscribeToFundRequest": {
+        "required": [
+          "amount",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "FundDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "minAmount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "category": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

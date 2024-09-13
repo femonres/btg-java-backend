@@ -1,0 +1,165 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  JavaLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: JavaLambdaFunction
+      Handler: com.btg_pactual.app.LambdaHandler::handleRequest
+      Runtime: java17
+      CodeUri: build/libs/application-all.jar
+      MemorySize: 512
+      Timeout: 20
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{proxy}
+            Method: ANY
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: lambda
+          AWS_REGION: us-west-2
+          ALLOWED_ORIGINS: "'http://localhost:4200'"
+          EMAIL_SNS_TOPIC_ARN: "arn:aws:sns:us-west-2:6576767676:SmsNotifications"
+          SMS_SNS_TOPIC_ARN: "arn:aws:sns:us-west-2:6576767676:SmsNotifications"
+
+  ApiGateway:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      Name: 'MyApiGateway'
+      StageName: 'Prod'
+      DefinitionUri: s3://btg-backends-bucket/openapi.json
+      Cors:
+        AllowHeaders: "'Content-Type'"
+        AllowMethods: "'GET,POST,PUT,OPTIONS'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: 'My API'
+          version: '1.0'
+        paths:
+          /users:
+            get:
+              summary: 'Fetch all users'
+              operationId: 'fetchUsers'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+          /users/{userId}:
+            get:
+              summary: 'Get user by ID'
+              operationId: 'getUsersByID'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+            put:
+              summary: 'Update user profile'
+              operationId: 'updateUserProfile'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+          /users/{userId}/transacctions:
+            get:
+              summary: 'Fetch transactions of a user'
+              operationId: 'fetchTransactionsOfUser'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+          /users/{userId}/reset:
+            put:
+              summary: 'Reset balance of a user'
+              operationId: 'resetBalanceOfUser'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+          /funds:
+            get:
+              summary: 'Fetch all Funds'
+              operationId: 'fetchFunds'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+          /funds/{fundId}/subscribe:
+            post:
+              summary: 'Subscribe user to fund'
+              operationId: 'subscribeToFund'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+          /funds/{fundId}/unsubscribe:
+            post:
+              summary: 'Unsubscribe user from fund'
+              operationId: 'unsubscribeFromFund'
+              x-amazon-apigateway-integration:
+                type: 'aws_proxy'
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JavaLambdaFunction.Arn}/invocations'
+                httpMethod: POST
+                credentials: !GetAtt LambdaExecutionRole.Arn
+
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 'LambdaExecutionRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'lambda.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'LambdaExecutionPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Permisos para DynamoDB
+              - Effect: Allow
+                Action:
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/FundTable"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/ClientTable"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/TransactionTable"
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/TransactionTable/index/ClientIDIndex'
+
+              # Permisos para SNS
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:SmsNotifications"
+
+              # Permisos para SES
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: "*"
+
+              # Permisos básicos de CloudWatch Logs
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
