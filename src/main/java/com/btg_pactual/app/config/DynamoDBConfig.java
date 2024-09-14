@@ -28,7 +28,6 @@ public class DynamoDBConfig {
     DynamoDbClient createDynamoDbClient() {
         return DynamoDbClient.builder()
             .region(Region.of(awsRegion))
-            .credentialsProvider(DefaultCredentialsProvider.create())
             .build();
     }
     

@@ -1,0 +1,125 @@
+Description: 'BTG Pactual backend en Java y Spring Boot 3'
+
+Resources:
+  # Definir el rol de ejecución de Lambda con permisos para DynamoDB, SNS, SES y S3
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Permisos para DynamoDB
+              - Effect: Allow
+                Action:
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/FundTable"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/ClientTable"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/TransactionTable"
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/TransactionTable/index/ClientIDIndex'
+
+              # Permisos para SNS
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:SmsNotifications"
+
+              # Permisos para SES
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: "*"
+
+              # Permisos básicos de CloudWatch Logs
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
+
+  # Definición de la función Lambda
+  UserLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: UserLambdaFunction
+      Handler: com.btg_pactual.app.LambdaHandler::handleRequest
+      Runtime: java17
+      MemorySize: 512
+      Timeout: 20
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: btg-backends-bucket
+        S3Key: application-all.jar
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: lambda
+          ALLOWED_ORIGINS: "http://*.amazonaws.com,https://*.amazonaws.com"
+          EMAIL_SNS_TOPIC_ARN: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:SmsNotifications"
+          SMS_SNS_TOPIC_ARN: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:SmsNotifications"
+  
+  # API Gateway para exponer la Lambda como una API REST
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ApiGateway
+      Description: API Gateway for Your Lambda Function
+
+  # Definir una integración entre API Gateway y la función Lambda
+  UserResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: '{proxy+}'
+      RestApiId: !Ref ApiGateway
+
+  UserApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      ResourceId: !Ref UserResource
+      RestApiId: !Ref ApiGateway
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UserLambdaFunction.Arn}/invocations
+      MethodResponses:
+        - StatusCode: "200"
+
+  # Permisos de API Gateway para invocar la función Lambda
+  UserLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt UserLambdaFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*/*/*'
+
+  ApiDeployment:
+    Type: 'AWS::ApiGateway::Deployment'
+    DependsOn:
+      - UserApiMethod
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: 'prod'
+
+Outputs:
+  ApiUrl:
+    Description: "The URL of the API Gateway"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/"

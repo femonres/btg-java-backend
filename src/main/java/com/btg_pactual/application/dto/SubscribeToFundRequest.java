@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SubscribeToFundRequest {
 
     @Schema(hidden = true)

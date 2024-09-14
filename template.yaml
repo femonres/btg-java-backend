@@ -19,8 +19,7 @@ Resources:
       Environment:
         Variables:
           SPRING_PROFILES_ACTIVE: lambda
-          AWS_REGION: us-west-2
-          ALLOWED_ORIGINS: "'http://localhost:4200'"
+          ALLOWED_ORIGINS: "'http://*.amazonaws.com,https://*.amazonaws.com'"
           EMAIL_SNS_TOPIC_ARN: "arn:aws:sns:us-west-2:6576767676:SmsNotifications"
           SMS_SNS_TOPIC_ARN: "arn:aws:sns:us-west-2:6576767676:SmsNotifications"
 
@@ -29,7 +28,6 @@ Resources:
     Properties:
       Name: 'MyApiGateway'
       StageName: 'Prod'
-      DefinitionUri: s3://btg-backends-bucket/openapi.json
       Cors:
         AllowHeaders: "'Content-Type'"
         AllowMethods: "'GET,POST,PUT,OPTIONS'"

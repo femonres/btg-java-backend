@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateProfileClientRequest {
 
     @Schema(hidden = true)
